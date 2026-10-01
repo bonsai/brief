@@ -26,17 +26,15 @@ function color(code: string, text: string): string {
 // Line types
 // ----------------------------------------------------------
 
-export type LineKind = "head" | "sec" | "txt" | "gap";
+// ----------------------------------------------------------
+// 行の型は controller が正本。ここは再輸出だけ。
+// ----------------------------------------------------------
 
-export interface BriefLine {
-  kind: LineKind;
-  text: string;
-}
+import type { PanelRow } from "../controller/brief.ts";
 
-export function head(text: string): BriefLine { return { kind: "head", text }; }
-export function sec(text: string):  BriefLine { return { kind: "sec",  text }; }
-export function txt(text: string):  BriefLine { return { kind: "txt",  text }; }
-export function gap():              BriefLine { return { kind: "gap",  text: "" }; }
+// 行の型は controller が正本。ここは再輸出だけ。
+export type LineKind = PanelRow["kind"];
+export type BriefLine = PanelRow;
 
 // ----------------------------------------------------------
 // Display width（CJK / emoji = 2, ASCII = 1）

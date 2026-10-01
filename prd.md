@@ -71,11 +71,33 @@
 ### 3.1 原則
 
 1. **パスはハードコードしない。** `settings.json` だけが正本。PowerShell 版も Deno 版もここだけを読む
-2. **実装は PowerShell 側は単一ファイル**（`Documents/PowerShell/brief.ps1`）。.cache / data / view / refresh worker すべて therein
-3. **エイリアス登録は別**。実装とは分離し、`Register-BriefAliases` にまとめる
-4. **テスト同梱**。ロジックは必ず `_test.ts` / `.test.ps1` で守る
+2. **表示内容は controller 層が正本。** view は「並べ方」だけを決める。文言を view に書かない
+3. **実装は PowerShell 側は単一ファイル**（`Documents/PowerShell/brief.ps1`）。cache / data / view / refresh worker すべて therein
+4. **エイリアス登録は別。** 実装とは分離し、`Register-BriefAliases` にまとめる
+5. **テスト同梱。** ロジックは必ず `_test.ts` / `.test.ps1` で守る
 
-### 3.2 ディレクトリ
+### 3.2 三層
+
+```
+model/       データと設定。cache の schema、設定の解決
+   ↓
+controller/  表示内容の正本。cache を「何かの行」に翻訳する
+   ↓
+view/        並べ方と描画だけ。panel.ts / render.ts / tui.tsx
+```
+
+**controller を置いた理由**: view が 2 つ（`render.ts` と `tui.tsx`）あり、
+cache → 行の翻訳ロジックが両方に複製されていた。実際には文言まで食い違っていた
+（`wsl  ` と `wsl    `、`📔 今日の日報` と `🧩 Issue Type Ledger` が片方にしか無い）。
+片方だけ直すと片方が壊れる状態だった。
+
+次の grep が空なら分離は完了している:
+
+```bash
+grep -E 'opencode|due|wsl|distros' view/render.ts view/tui.tsx view/panel.ts
+```
+
+### 3.3 ディレクトリ
 
 ```
 brief/
@@ -83,15 +105,18 @@ brief/
 ├── settings.example.json      設定の正本のひな形（commit される）
 ├── settings.json              各自の実設定（gitignore）
 ├── model/
-│   ├── paths.ts               settings.json 解決 + FALLBACK
+│   ├── paths.ts               settings.json 解決 + FALLBACK + ~ 展開
 │   ├── cache.ts               BriefCacheSchema（zod）と read/write helper
 │   ├── validate.ts            キャッシュの整合性検証
 │   ├── paths_test.ts
 │   └── cache_test.ts
+├── controller/
+│   ├── brief.ts               ★ 表示内容の正本
+│   └── brief_test.ts
 └── view/
     ├── panel.ts               displayWidth / wrapText / truncateToWidth / renderPanel
-    ├── render.ts              Deno 版パネル描画
-    ├── tui.tsx                Ink 版 TUI
+    ├── render.ts              Deno 版パネル描画（中身は controller 1 関数）
+    ├── tui.tsx                Ink 版 TUI（中身は controller 1 関数）
     └── panel_test.ts
 ```
 
@@ -103,7 +128,22 @@ Documents/PowerShell/
 └── tests/brief.test.ps1
 ```
 
-### 3.3 設定
+### 3.4 controller の責務
+
+```ts
+loadSettings()                 // settings.json を解決
+await loadModel({ cache })     // cache / journal / issues を読む
+localDate(now) / localTime(now)// ローカル時刻（UTC を使わない）
+buildSection(model, section)   // TUI 用：セクション → string[]
+buildPanel(model)              // パネル用：1 画面 → PanelRow[]
+parseRecap(path, raw)          // recap md を構造化
+loadRecap(journalDir)          // 最新の recap を探す
+loadIssueCount(md, jsonl)      // md 優先、なければ jsonl
+```
+
+`loadModel` は `now` を受け取れる。テストは時刻を固定できる。
+
+### 3.5 設定
 
 `settings.json`（正本）:
 
@@ -128,7 +168,7 @@ Documents/PowerShell/
 
 `settings.json` が無ければ既定値で動く（clone 直後はこの状態）。
 
-### 3.4 キャッシュ（TTL）
+### 3.6 キャッシュ（TTL）
 
 遅い probe は起動を待たせない。バックグラウンドで走らせてキャッシュに書く。
 

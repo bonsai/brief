@@ -64,15 +64,28 @@ PowerShell 版は `Documents/PowerShell/brief.ps1` に単一ファイルで存�
 
 ## 構成
 
+三層。**controller が表示内容の正本**。
+
+```
+model/       データと設定
+   ↓
+controller/  ★ cache を「何かの行」に翻訳する
+   ↓
+view/        並べ方と描画だけ
+```
+
 ```
 brief/
 ├── deno.json                タスク定義
 ├── settings.example.json    設定の正本のひな形
 ├── model/
-│   ├── paths.ts             settings.json 解決 + FALLBACK
+│   ├── paths.ts             settings.json 解決 + FALLBACK + ~ 展開
 │   ├── cache.ts             BriefCacheSchema（zod）
 │   ├── validate.ts          キャッシュ検証
 │   └── *_test.ts
+├── controller/
+│   ├── brief.ts             ★ 表示内容の正本（文言はここだけで決める）
+│   └── brief_test.ts
 └── view/
     ├── panel.ts             displayWidth / wrapText / renderPanel
     ├── render.ts            Deno 版パネル
@@ -80,12 +93,21 @@ brief/
     └── panel_test.ts
 ```
 
+view が2つあるためcontroller を置いています。
+文言を view に書くと片方だけ直る状態になるので。
+
+```bash
+# 分離が完了しているかの確認（空ならOK）
+grep -E 'opencode|due|wsl|distros' view/render.ts view/tui.tsx view/panel.ts
+```
+
 ## 原則
 
 1. **パスはハードコードしない。** `settings.json` だけが正本
-2. **遅い probe はバックグラウンド。** TTL 付きキャッシュに書いてから読む
-3. **枠は揺らさない。** 文字幅表（`panel.ts` / `Get-BriefWidth`）をテストで守る
-4. **テスト同梱。** ロジックは `_test.ts` / `.test.ps1` で守る
+2. **文言は controller に書く。** view は並べ方だけ
+3. **遅い probe はバックグラウンド。** TTL 付きキャッシュに書いてから読む
+4. **枠は揺らさない。** 文字幅表（`panel.ts` / `Get-BriefWidth`）をテストで守る
+5. **テスト同梱。** ロジックは `_test.ts` / `.test.ps1` で守る
 
 ## 詳細
 
