@@ -12,7 +12,7 @@
 import { parseArgs } from "@std/cli/parse-args";
 import { readBriefCache } from "../model/cache.ts";
 import { loadSettings } from "../model/paths.ts";
-import { buildPanel, loadModel, type BriefModel } from "../controller/brief.ts";
+import { buildPanel, emptyModel, loadModel } from "../controller/brief.ts";
 import { printPanel } from "./panel.ts";
 
 const args      = parseArgs(Deno.args);
@@ -27,19 +27,12 @@ const termWidth = (args.width as number | undefined) ?? getTermWidth();
 // ---- 読むだけ。組み立ては controller ----
 const cache = await readBriefCache(cachePath);
 
-let model: BriefModel;
+let model;
 try {
   model = await loadModel({ cache });
 } catch {
-  // controller が何に失敗しても最低限のモデルで描画する
-  const now = new Date();
-  model = {
-    cache,
-    today: now.toISOString().slice(0, 10),
-    hhmm: now.toTimeString().slice(0, 5),
-    recap: { file: null, date: null, heads: [], lines: [] },
-    issueCount: 0,
-  };
+  // controller が何に失敗しても最低限のモデルで描画する（fallback は controller が一箇所）
+  model = emptyModel();
 }
 
 printPanel(buildPanel(model), { termWidth });

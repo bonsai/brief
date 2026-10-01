@@ -23,9 +23,11 @@ import {
   SECTIONS,
   SECTION_LABELS,
   buildSection,
+  emptyModel,
   headerLine,
   loadModel,
   type BriefModel,
+  type Section,
 } from "../controller/brief.ts";
 
 /**
@@ -41,7 +43,7 @@ const MAX_WIDTH   = 92;
 // Components
 // ----------------------------------------------------------
 
-function TabBar({ active }: { active: (typeof SECTIONS)[number] }): ReactNode {
+function TabBar({ active }: { active: Section }): ReactNode {
   return (
     <Box gap={1} marginBottom={1}>
       {SECTIONS.map((s, i) => (
@@ -181,14 +183,7 @@ let model: BriefModel;
 try {
   model = await loadModel({ cache });
 } catch {
-  const now = new Date();
-  model = {
-    cache,
-    today: now.toISOString().slice(0, 10),
-    hhmm: now.toTimeString().slice(0, 5),
-    recap: { file: null, date: null, heads: [], lines: ["（読み込み失敗）"] },
-    issueCount: 0,
-  };
+  model = emptyModel();  // fallback も controller が一箇所
 }
 
 render(<App model={model} />);

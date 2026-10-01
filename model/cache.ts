@@ -41,12 +41,6 @@ export const LexiconSchema = z.object({
   next:   z.string().nullable(),   // "yyyy-MM-dd" | null
 });
 
-export const RecapSchema = z.object({
-  file:  z.string(),
-  date:  z.string(),               // "yyyy-MM-dd" from filename
-  heads: z.array(z.string()),
-});
-
 export const PythonSchema = z.object({
   at:      z.string(),
   version: z.string(),             // "Python 3.13.14"
@@ -78,7 +72,6 @@ export type Distro      = z.infer<typeof DistroSchema>;
 export type OpenCode    = z.infer<typeof OpenCodeSchema>;
 export type Wsl         = z.infer<typeof WslSchema>;
 export type Lexicon     = z.infer<typeof LexiconSchema>;
-export type Recap       = z.infer<typeof RecapSchema>;
 export type BriefCache  = z.infer<typeof BriefCacheSchema>;
 
 // ----------------------------------------------------------

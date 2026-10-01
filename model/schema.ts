@@ -26,7 +26,7 @@ import {
 // ==========================================================
 
 /** controller: Section */
-export const SectionSchema = z.enum(["env", "recap", "next", "lexicon"]);
+export const SectionSchema = z.enum(["env", "recap", "next", "lexicon", "issue"]);
 
 /** controller: PanelKind */
 export const PanelKindSchema = z.enum(["head", "sec", "txt", "gap"]);
@@ -37,21 +37,65 @@ export const PanelRowSchema = z.object({
   text: z.string(),
 });
 
-/** controller: RecapInfo */
-export const RecapInfoSchema = z.object({
-  file:  z.string().nullable(),
-  date:  z.string().nullable(),
-  heads: z.array(z.string()),
+/** controller: SectionData — すべてのセクションが持つ最低の契約 */
+export const SectionDataSchema = z.object({
+  id:    SectionSchema,
+  label: z.string(),
   lines: z.array(z.string()),
 });
 
-/** controller: BriefModel */
+/** controller: EnvInfo */
+export const EnvInfoSchema = SectionDataSchema.extend({
+  id:       z.literal("env"),
+  tools:    z.string(),
+  wsl:      z.string(),
+  hasCache: z.boolean(),
+});
+
+/** controller: RecapInfo */
+export const RecapInfoSchema = SectionDataSchema.extend({
+  id:    z.literal("recap"),
+  file:  z.string().nullable(),
+  date:  z.string().nullable(),
+  heads: z.array(z.string()),
+  body:  z.array(z.string()),
+});
+
+/** controller: NextInfo */
+export const NextInfoSchema = SectionDataSchema.extend({
+  id:       z.literal("next"),
+  opencode: z.array(z.string()),
+  lexicon:  z.array(z.string()),
+  journal:  z.string(),
+  issue:    z.array(z.string()),
+});
+
+/** controller: LexiconInfo */
+export const LexiconInfoSchema = SectionDataSchema.extend({
+  id:       z.literal("lexicon"),
+  total:    z.number().int().nonnegative(),
+  due:      z.number().int().nonnegative(),
+  next:     z.string().nullable(),
+  hasCache: z.boolean(),
+});
+
+/** controller: IssueInfo */
+export const IssueInfoSchema = SectionDataSchema.extend({
+  id:     z.literal("issue"),
+  count:  z.number().int().nonnegative(),
+  source: z.enum(["md", "jsonl", "none"]),
+  ids:    z.array(z.string()),
+});
+
+/** controller: BriefModel — 5 セクションを全部持つ */
 export const BriefModelSchema = z.object({
-  cache:      BriefCacheSchema,
-  today:      z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  hhmm:       z.string().regex(/^\d{2}:\d{2}$/),
-  recap:      RecapInfoSchema,
-  issueCount: z.number().int().nonnegative(),
+  env:     EnvInfoSchema,
+  recap:   RecapInfoSchema,
+  next:    NextInfoSchema,
+  lexicon: LexiconInfoSchema,
+  issue:   IssueInfoSchema,
+  today:   z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  hhmm:    z.string().regex(/^\d{2}:\d{2}$/),
 });
 
 /** controller: LoadOptions */
@@ -64,12 +108,13 @@ export const LoadOptionsSchema = z.object({
   now:         z.string().optional(),
 });
 
-/** tools.ps1 の台帳 1 エントリ（Cmd/Plan は実行側なので除く） */
+/** controller: ToolEntry 相当 */
 export const ToolEntrySchema = z.object({
   id:     z.string(),
   name:   z.string(),
   desc:   z.string(),
   status: z.enum(["ready", "planned"]),
+  plan:   z.string().optional(),
 });
 
 /** tools.ps1 のパスパス */
@@ -113,11 +158,16 @@ export function buildSchema(): Record<string, unknown> {
       Lexicon:    def("Lexicon", LexiconSchema),
 
       // ---- controller ----
-      Section:    def("Section", SectionSchema),
-      PanelKind:  def("PanelKind", PanelKindSchema),
-      PanelRow:   def("PanelRow", PanelRowSchema),
-      RecapInfo:  def("RecapInfo", RecapInfoSchema),
-      BriefModel: def("BriefModel", BriefModelSchema),
+      Section:     def("Section", SectionSchema),
+      PanelKind:   def("PanelKind", PanelKindSchema),
+      PanelRow:    def("PanelRow", PanelRowSchema),
+      SectionData: def("SectionData", SectionDataSchema),
+      EnvInfo:     def("EnvInfo", EnvInfoSchema),
+      RecapInfo:   def("RecapInfo", RecapInfoSchema),
+      NextInfo:    def("NextInfo", NextInfoSchema),
+      LexiconInfo: def("LexiconInfo", LexiconInfoSchema),
+      IssueInfo:   def("IssueInfo", IssueInfoSchema),
+      BriefModel:  def("BriefModel", BriefModelSchema),
       LoadOptions: def("LoadOptions", LoadOptionsSchema),
 
       // ---- PowerShell 側 ----

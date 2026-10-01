@@ -15,17 +15,18 @@ const OUT  = join(REPO, "schema.json");
 
 const EXPECTED = [
   "BriefCache", "Distro", "OpenCode", "Wsl", "Python", "Lexicon",
-  "Section", "PanelKind", "PanelRow", "RecapInfo", "BriefModel",
-  "LoadOptions", "ToolEntry", "ToolPaths",
+  "Section", "PanelKind", "PanelRow", "SectionData",
+  "EnvInfo", "RecapInfo", "NextInfo", "LexiconInfo", "IssueInfo",
+  "BriefModel", "LoadOptions", "ToolEntry", "ToolPaths",
 ];
 
 Deno.test("schema.json が存在する", () => {
   assert(Deno.statSync(OUT).isFile);
 });
 
-Deno.test("definitions が 14 個ある", () => {
+Deno.test("definitions が 19 個ある", () => {
   const s = buildSchema() as { definitions: Record<string, unknown> };
-  assertEquals(Object.keys(s.definitions).length, 14);
+  assertEquals(Object.keys(s.definitions).length, 19);
 });
 
 Deno.test("期待した定義がすべて揃っている", () => {
@@ -54,19 +55,64 @@ Deno.test("BriefModel の $ref が definitions を指す", () => {
   assertEquals(s.$ref, "#/definitions/BriefModel");
 });
 
-Deno.test("Section は 4 値", () => {
+Deno.test("Section は 5 値", () => {
   const s = buildSchema() as { definitions: Record<string, { enum?: string[] }> };
-  assertEquals(s.definitions.Section!.enum, ["env", "recap", "next", "lexicon"]);
+  assertEquals(
+    s.definitions.Section!.enum,
+    ["env", "recap", "next", "lexicon", "issue"],
+  );
 });
 
-Deno.test("PanelKind は 4 値", () => {
-  const s = buildSchema() as { definitions: Record<string, { enum?: string[] }> };
-  assertEquals(s.definitions.PanelKind!.enum, ["head", "sec", "txt", "gap"]);
+Deno.test("全セクション型が id/label/lines を持つ", () => {
+  const s = buildSchema() as {
+    definitions: Record<string, { required?: string[]; properties?: Record<string, unknown> }>;
+  };
+  for (const n of ["EnvInfo", "RecapInfo", "NextInfo", "LexiconInfo", "IssueInfo"]) {
+    const req = s.definitions[n]!.required!;
+    for (const k of ["id", "label", "lines"]) {
+      assert(req.includes(k), `${n} が required に ${k} を持たない`);
+    }
+    assert(s.definitions[n]!.properties!.lines, `${n} が lines を持たない`);
+  }
 });
 
-Deno.test("RecapInfo は file/date/heads/lines の 4 つ", () => {
+Deno.test("各セクションの id は literal で固定される", () => {
+  const s = buildSchema() as {
+    definitions: Record<string, { properties?: Record<string, { const?: unknown }> }>;
+  };
+  const want: Record<string, string> = {
+    EnvInfo: "env",
+    RecapInfo: "recap",
+    NextInfo: "next",
+    LexiconInfo: "lexicon",
+    IssueInfo: "issue",
+  };
+  for (const [n, v] of Object.entries(want)) {
+    assertEquals(s.definitions[n]!.properties!.id!.const, v, `${n}.id が ${v} でない`);
+  }
+});
+
+Deno.test("RecapInfo は file/date/heads/body/lines を持つ", () => {
   const s = buildSchema() as { definitions: Record<string, { required?: string[] }> };
-  assertEquals(s.definitions.RecapInfo!.required, ["file", "date", "heads", "lines"]);
+  assertEquals(
+    s.definitions.RecapInfo!.required,
+    ["id", "label", "lines", "file", "date", "heads", "body"],
+  );
+});
+
+Deno.test("IssueInfo.source は md/jsonl/none", () => {
+  const s = buildSchema() as {
+    definitions: Record<string, { properties?: Record<string, { enum?: string[] }> }>;
+  };
+  assertEquals(s.definitions.IssueInfo!.properties!.source.enum, ["md", "jsonl", "none"]);
+});
+
+Deno.test("BriefModel は 5 セクション + today + hhmm", () => {
+  const s = buildSchema() as { definitions: Record<string, { required?: string[] }> };
+  assertEquals(
+    s.definitions.BriefModel!.required,
+    ["env", "recap", "next", "lexicon", "issue", "today", "hhmm"],
+  );
 });
 
 Deno.test("today は yyyy-MM-dd パターンを持つ", () => {
