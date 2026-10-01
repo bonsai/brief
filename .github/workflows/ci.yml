@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# 同じブランチへの連続 push では古い実行を打ち切る
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # Deno 版（controller / model / view）— lint / 型 / test / schema ドリフト
+  deno:
+    name: deno (verify)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v2
+        with:
+          version: v2.x
+
+      - name: cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/deno
+            ~/.cache/deno/npm
+            ~/.cache/deno/remote
+          key: deno-${{ runner.os }}-${{ hashFiles('deno.lock') }}
+          restore-keys: deno-${{ runner.os }}-
+
+      - name: deno task verify
+        run: deno task verify
+
+  # PowerShell 版 — Windows のみ（USERPROFILE や \ 区切りに依存している）
+  powershell:
+    name: powershell (tests)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: deno task verify
+        run: deno task verify
+
+      # PowerShell 版はリポジトリ外（Documents/PowerShell）にあるため、
+      # このリポジトリでは存在チェックだけする。
+      - name: powershell 版は別リポジトリ
+        run: |
+          $p = "$env:USERPROFILE/Documents/PowerShell"
+          if (Test-Path $p) {
+            Write-Host "found $p（別管理）"
+            exit 0
+          }
+          Write-Host "::warning::Documents/PowerShell が無い。PowerShell 版テストは skipped"
+
+  # schema.json がコードとずれていないか（deno ジョブと重複するが明示するため単独でも持つ）
+  schema:
+    name: schema drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          version: v2.x
+      - run: deno task schema -- --check

@@ -323,6 +323,36 @@ Deno.test("panel の sec 行は section の .lines をそのまま使う", () =>
 // loadModel
 // ==========================================================
 
+Deno.test("emptyModel は 5 セクションを全て埋めたひな形を返す", () => {
+  const m = emptyModel(new Date(2026, 0, 2, 3, 4));
+  for (const s of SECTIONS) {
+    assertEquals(m[s].id, s);
+    assert(m[s].lines.length > 0, `${s} が空`);
+  }
+  assertEquals(m.today, "2026-01-02");
+  assertEquals(m.hhmm, "03:04");
+  // fallback は view 側が「読めたふり」をしないこと
+  assertEquals(m.env.hasCache, false);
+  assertEquals(m.lexicon.hasCache, false);
+  assertEquals(m.issue.count, 0);
+  assertEquals(m.issue.source, "none");
+  assertEquals(m.recap.file, null);
+});
+
+Deno.test("emptyModel は panel にも渡せる（文言が漏れない）", () => {
+  const rows = buildPanel(emptyModel());
+  assert(rows.length > 0);
+  for (const r of rows) assertEquals(typeof r.text, "string");
+});
+
+Deno.test("emptyRecap は案内文を 1 行だけ持つ", () => {
+  const r = emptyRecap();
+  assertEquals(r.file, null);
+  assertEquals(r.date, null);
+  assertEquals(r.lines.length, 1);
+  assertEquals(r.lines[0], "日報がまだ無いよ");
+});
+
 Deno.test("loadModel は 5 セクションを埋める", async () => {
   const m = await loadModel({
     cache: {},
