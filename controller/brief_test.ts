@@ -382,11 +382,21 @@ Deno.test("loadModel の today はローカル表記", async () => {
 });
 
 Deno.test("localDate は UTC ではなくローカル", () => {
-  // JST の 2026-01-02 00:30 = UTC 2026-01-01 15:30。toISOString() だと 01-01 になる。
-  assertEquals(localDate(new Date(Date.UTC(2026, 0, 1, 15, 30))), "2026-01-02");
+  // 実行環境の TZ に依存しないよう、Date のローカル時刻から組み立てる。
+  // （固定の UTC 値を使うと、CI が UTC のとき localDate とズレて落ちる）
+  const d = new Date(2026, 0, 2, 0, 30);      // ローカル 2026-01-02 00:30
+  assertEquals(localDate(d), "2026-01-02");
+
+  // 同じ日の 23:59 でも日付が変わらないこと
+  const e = new Date(2026, 0, 2, 23, 59);
+  assertEquals(localDate(e), "2026-01-02");
+
+  // 月末日→翌月 1 日にまたいでも桁あふれしないこと
+  assertEquals(localDate(new Date(2026, 11, 31, 12, 0)), "2026-12-31");
+  assertEquals(localDate(new Date(2027, 0, 1, 12, 0)), "2027-01-01");
 });
 
-Deno.test("localTime はローカル時刻", () => {
+Deno.test("localTime は 2 桁ゼロ埋め", () => {
   assertEquals(localTime(new Date(2026, 0, 2, 3, 4)), "03:04");
   assertEquals(localTime(new Date(2026, 0, 2, 0, 0)), "00:00");
   assertEquals(localTime(new Date(2026, 0, 2, 23, 59)), "23:59");

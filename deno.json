@@ -21,8 +21,7 @@
     "schema":  "deno run --allow-read --allow-env --allow-write model/emit-schema.ts",
     "test":    "deno test -A controller/ model/ view/",
     "check":   "deno check controller/ model/ view/",
-    "test:ps": "pwsh -NoProfile -File $env:USERPROFILE/Documents/PowerShell/tests/brief.test.ps1",
-    "verify":  "deno task lint && deno task check && deno task test && deno task schema -- --check",
+"verify":  "deno task lint && deno task check && deno task test && deno task schema -- --check",
     "lint":    "deno lint"
   }
 }

@@ -24,7 +24,10 @@
 |---|---|---|
 | `brief` | PowerShell パネル | 起動時に自動描画 |
 | `brief -Deno` | `view/render.ts` | 依存ゼロ・高速 |
-| `brief -Tui` / `b` | `view/tui.tsx`（Ink 5） | セクション切替 + 縦スクロール |
+| `brief -Tui` / `b` | `view/tui.tsx`（Ink 5） | 5 セクション + 縦スクロール |
+
+セクションは `env` / `recap` / `next` / `lexicon` / `issue` の 5 つ。`Tab` `l` `→` で切替、
+`↑↓` `k j` `PgUp` `PgDn` `g` `G` で縦スクロール、`q` で終了。
 
 ## Setup
 
@@ -34,8 +37,8 @@ cd brief
 cp settings.example.json settings.json   # 自分のパスに直す
 ```
 
-`settings.json` が無ければ既定値（`$HOME/.startup/brief-cache.json` 等）で動くので、
-必需ではない。
+`settings.json` が無ければ既定値で動くので必須ではない。
+パスは `~` で書ける（`model/paths.ts` が展開する）。**ハードコードしない。**
 
 ## 使い方
 
@@ -43,76 +46,41 @@ cp settings.example.json settings.json   # 自分のパスに直す
 deno task brief      # Deno 版パネル
 deno task tui        # TUI
 deno task validate   # キャッシュ検証
-deno task check      # 型チェック
-deno task test       # テスト
-deno task verify     # check + test
+deno task schema     # 型定義（schema.json）を生成
+deno task verify     # lint + check + test + schema ドリフト
 ```
 
-TUI のキー:
-
-| キー | 動作 |
-|---|---|
-| `Tab` / `l` / `→` | 次のセクション |
-| `h` / `←` | 前のセクション |
-| `↑` `↓` / `k` `j` | 縦スクロール |
-| `PgUp` / `PgDn` | 1 画面スクロール |
-| `g` / `G` | 先頭 / 末尾 |
-| `q` / `Ctrl-C` | 終了 |
-
-PowerShell 版は `Documents/PowerShell/brief.ps1` に単一ファイルで存在する（本リポジトリ外）。
-`brief -Help` で全オプション。
-
 ## 構成
-
-三層。**controller が表示内容の正本**。
 
 ```
 model/       データと設定
    ↓
-controller/  ★ cache を「何かの行」に翻訳する
+controller/  ★ 表示内容の正本（文言はここだけで決める）
    ↓
 view/        並べ方と描画だけ
 ```
 
-```
-brief/
-├── deno.json                タスク定義
-├── settings.example.json    設定の正本のひな形
-├── model/
-│   ├── paths.ts             settings.json 解決 + FALLBACK + ~ 展開
-│   ├── cache.ts             BriefCacheSchema（zod）
-│   ├── validate.ts          キャッシュ検証
-│   └── *_test.ts
-├── controller/
-│   ├── brief.ts             ★ 表示内容の正本（文言はここだけで決める）
-│   └── brief_test.ts
-└── view/
-    ├── panel.ts             displayWidth / wrapText / renderPanel
-    ├── render.ts            Deno 版パネル
-    ├── tui.tsx              Ink 版 TUI
-    └── panel_test.ts
-```
+view が 2 つあるため controller を置いています。文言を view に書くと片方だけ直る状態になるので。
 
-view が2つあるためcontroller を置いています。
-文言を view に書くと片方だけ直る状態になるので。
+- 型定義は `schema.json`。`model/cache.ts` の zod から**生成**する（手で編集しない）
+- ignore するものの正本は `.gitignore`
+- 遅い probe はバックグラウンドで走らせ、TTL 付きキャッシュに書いてから読む
 
-```bash
-# 分離が完了しているかの確認（空ならOK）
-grep -E 'opencode|due|wsl|distros' view/render.ts view/tui.tsx view/panel.ts
-```
+## ドキュメント
 
-## 原則
+| 種類 | 場所 |
+|---|---|
+| 設計仕様 | [#13](https://github.com/bonsai/brief/issues/13) |
+| ローカルパスの現状 | [#14](https://github.com/bonsai/brief/issues/14) |
+| 再発しないための記録 | [#15](https://github.com/bonsai/brief/issues/15) |
+| 残務・進捗 | [Issues](https://github.com/bonsai/brief/issues) |
+| プロジェクト管理の運用 | [#16](https://github.com/bonsai/brief/issues/16) |
 
-1. **パスはハードコードしない。** `settings.json` だけが正本
-2. **文言は controller に書く。** view は並べ方だけ
-3. **遅い probe はバックグラウンド。** TTL 付きキャッシュに書いてから読む
-4. **枠は揺らさない。** 文字幅表（`panel.ts` / `Get-BriefWidth`）をテストで守る
-5. **テスト同梱。** ロジックは `_test.ts` / `.test.ps1` で守る
+**残務の正本は GitHub Issue**。README には残務表を作らない（二重管理になるため）。
 
-## 詳細
+## CI
 
-設計判断と既知の罠は [docs/prd.md](./docs/prd.md) を参照。
-残務は [docs/kanban.md](./docs/kanban.md)（GitHub Issues と同期）。
+`push` と `pull_request` で `deno task verify` を回す。`schema.json` のドリフトも検出する。
 
 ## License
 

@@ -1,13 +1,32 @@
-# 実設定は commit しない（絶対パスが含まれる）
+# ==========================================================
+# ignore するものの正本ここ
+# 追加nois必要にら、このファイルに 1 行足すだけで済む
+# ==========================================================
+
+# ---- 個人設定（絶対パスが含まれるため commit しない）----
+# ひな形は settings.example.json を参照。~ は展開されないので絶対パスを書く
 settings.json
 
-# 缓存のバックアップ
+# ---- 書き込み途中の残骸（atomic write の tmp）----
 *.tmp
 
-# OS / editor
+# ---- 生成物（deno task schema で生成。実行は組む）----
+# schema.json は commit する（CI が --check で漂移を検出するため）
+
+# ---- OS ----
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# ---- editor ----
 *.swp
+*.swo
 *~
-.vscode/
 .idea/
+.vscode/
+
+# ---- ローカルの置き場（リポジトリ外なのでここに書かなくてよい）----
+# Documents/PowerShell/        … PowerShell 版（別管理）
+# ~/.journal/                  … 日報
+# ~/.issues/                   … Issue Type Ledger
+# ~/.startup/                  … キャッシュ
