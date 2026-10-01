@@ -155,7 +155,7 @@ loadIssueCount(md, jsonl)      // md 優先、なければ jsonl
     "issuesMd":    "~/.issues/issue-types.md",
     "issuesJsonl": "~/.issues/issue-types.jsonl",
     "lexiconDir":  "~/.config/opencode/skills/genres/learning/word-ontology/ontology",
-    "settingsFile": "~/.config/opencode/skills/brief/settings.json"
+    "settingsFile": "~/.config/opencode/tools/brief/settings.json"
   },
   "cache": {
     "opencodeTtlHours": 6,

@@ -54,7 +54,8 @@ const FALLBACK: BriefSettings = {
     journal:      join(HOME, ".journal"),
     issuesMd:     join(HOME, ".issues", "issue-types.md"),
     issuesJsonl:  join(HOME, ".issues", "issue-types.jsonl"),
-    lexiconDir:   join(DENO_DIR, "..", "..", "genres", "learning", "word-ontology", "ontology"),
+    // lexicon（word-ontology）は tools/ ではなく skills/ にある
+    lexiconDir:   join(DENO_DIR, "..", "..", "skills", "genres", "learning", "word-ontology", "ontology"),
     settingsFile: join(DENO_DIR, "settings.json"),
   },
   cache: {
