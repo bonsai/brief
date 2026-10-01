@@ -4,6 +4,9 @@
 
 - 更新: 2026-10-01
 - 関連: `brief` = https://github.com/bonsai/brief ／ 道具台帳 = `Documents/PowerShell/tools.ps1`
+- **同期先**: この表の 1 行 = GitHub Issue 1 件（https://github.com/bonsai/brief/issues）
+  - 優先度 = `priority:high` / `priority:medium` / `priority:low`
+  - 種類 = `refactor` / `docs` / `planned` / `powershell` / `enhancement`
 
 ---
 
@@ -17,34 +20,34 @@
 
 ## 優先度高
 
-| # | 内容 | 場所 / 備考 |
+| # | Issue | 内容 |
 |---|---|---|
-| 1 | **ランチャーのリストが3重複**。`launchers.ps1` の数字キー（0-9・10項目ハードコード）、`menu.ps1` の F12（オントロジ7件＋opencode系10件ハードコード）、`tools.ps1` の台帳（10項目・正本）。全部 `tools.ps1` 参照に寄せる | `Documents/PowerShell/launchers.ps1:17-26`, `menu.ps1:95` |
-| 2 | **`prd.md` が「セクションは 4 つ」のまま**。unify で 5 つ（`issue` 追加）になったのに未更新 | `brief/prd.md:52` |
-| 3 | **`mdt` の起動が遅い**。WSL の DrvFs（`/mnt/c`）上の ELF なので `test -x` だけで **9.7秒**。WSL ネイティブ（`~/` 配下）に `cargo build --release` すれば桁違いに速い | `/mnt/c/Users/0501JP/sotsusei/md-tui/target/release/mdt` |
-| 4 | **`brief -Tui` / `b` の実地確認**。`. $PROFILE` 後に TUI・F12 menu・`tool` を人が操作して確認する（CI では raw mode が無いため未検証） | 対話セッションで要手動 |
+| 1 | [#1](https://github.com/bonsai/brief/issues/1) | **ランチャーのリストが3重複**。`launchers.ps1`（数字10項目ハードコード）、`menu.ps1`（F12、オントロジ7件＋opencode系10件ハードコード）、`tools.ps1`（台帳10項目・正本）。全部 `tools.ps1` 参照に寄せる |
+| 2 | [#2](https://github.com/bonsai/brief/issues/2) | **`prd.md` が「セクションは 4 つ」のまま**。unify で 5 つ（`issue` 追加）になったのに未更新 |
+| 3 | [#3](https://github.com/bonsai/brief/issues/3) | **`mdt` の起動が遅い**。WSL の DrvFs（`/mnt/c`）上の ELF なので `test -x` だけで **9.7秒**。WSL ネイティブ（`~/` 配下）に `cargo build --release` すれば速い |
+| 4 | [#4](https://github.com/bonsai/brief/issues/4) | **`brief -Tui` / F12 menu の実地確認**。`. $PROFILE` 後に TUI・F12 menu・`tool` を人が操作して確認する（CI では raw mode が無いため未検証） |
 
 ---
 
 ## 優先度中
 
-| # | 内容 | 場所 / 備考 |
+| # | Issue | 内容 |
 |---|---|---|
-| 5 | **PS1 と Deno で文言が二重管理**。`brief.ps1` の `Show-StartupBrief` と `controller/brief.ts` の `buildPanel` が同じ内容を Independentlyに組み立てている。片方だけ直すとずれる | `Documents/PowerShell/brief.ps1:330-420`, `brief/controller/brief.ts` |
-| 6 | **`tools.ps1` が `Get-BriefWidth` を借りている**。tools は brief に依存してしまう。文字幅表を独立させるか、brief 由来と明記する | `tools.ps1:221,229` |
-| 7 | **`ToolPaths.Skills` が未使用**。`word-ontology` が `skills/` にあるため残しているが、読み手が無い。削除するか使うか決める | `tools.ps1:27` |
-| 8 | **`tools/brief` が nested repo**。`opencode/skills` repo の内側に別の git repo がある。親 repo が見る `?? tools/` をどうするか（ignore / submodule / 切り出し） | `~/.config/opencode/tools/brief/.git` |
-| 9 | **schema.json に PowerShell 側の型を反映**。`ToolStatusReady/Planned` の定数セットと `BriefSections` が未記載。`ToolEntry.plan` は任意にしたが実際の台帳と要確認 | `brief/model/schema.ts` |
+| 5 | [#5](https://github.com/bonsai/brief/issues/5) | **PS1 と Deno で文言が二重管理**。`brief.ps1` の `Show-StartupBrief` と `controller/brief.ts` の `buildPanel` が同じ内容を独立に組み立てている。片方だけ直すとずれる |
+| 6 | [#6](https://github.com/bonsai/brief/issues/6) | **`tools.ps1` が `Get-BriefWidth` を借りている**。tools は brief に依存してしまう。文字幅表を独立させるか、`brief` 由来と明記する |
+| 7 | [#7](https://github.com/bonsai/brief/issues/7) | **`ToolPaths.Skills` が未使用**。`word-ontology` が `skills/` にあるため残しているが、読み手が無い。削除するか使うか |
+| 8 | [#8](https://github.com/bonsai/brief/issues/8) | **`tools/brief` が nested repo**。`opencode/skills` repo の内側に別の git repo がある。親 repo が見る `?? tools/` をどうするか |
+| 9 | [#9](https://github.com/bonsai/brief/issues/9) | **schema.json に PowerShell 側の型が未反映**。`ToolStatus` 定数セットと `BriefSections` が未記載 |
 
 ---
 
 ## 計画中（未実装・`tool` の planned 3件）
 
-| # | 内容 | 場所 |
+| # | Issue | 内容 |
 |---|---|---|
-| 10 | `brainstorm` — 発散思考キャニスタ。SKILL.md を書いて skill 登録 | `tools.ps1` の planned セクション |
-| 11 | `goal` — 目標の宣言・進捗・達成判定。`~/.journal/goal.md` に置き brief から読む | 同上 |
-| 12 | `dev-env` — 開発環境の一覧。`settings.json` を読み path / version を表示。**`env` は GNU coreutils の `env.exe` をそのまま残す**（名前が衝突するので別名） | 同上 |
+| 10 | [#10](https://github.com/bonsai/brief/issues/10) | `brainstorm` — 発散思考キャニスタ。SKILL.md を書いて skill 登録 |
+| 11 | [#11](https://github.com/bonsai/brief/issues/11) | `goal` — 目標の宣言・進捗・達成判定。`~/.journal/goal.md` に置き brief の next セクションから読む |
+| 12 | [#12](https://github.com/bonsai/brief/issues/12) | `dev-env` — 開発環境の一覧。`settings.json` を読み path / version を表示。**`env` は GNU coreutils の `env.exe` をそのまま残す** |
 
 ---
 
