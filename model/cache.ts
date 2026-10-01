@@ -16,24 +16,24 @@ import { z } from "@zod/zod";
 // Sub-schemas
 // ----------------------------------------------------------
 
-const DistroSchema = z.object({
+export const DistroSchema = z.object({
   name:  z.string(),
   state: z.enum(["Running", "Stopped"]),
 });
 
-const OpenCodeSchema = z.object({
+export const OpenCodeSchema = z.object({
   at:        z.string(),           // ISO8601
   latest:    z.string().nullable(),
   installed: z.string().nullable(),
 });
 
-const WslSchema = z.object({
+export const WslSchema = z.object({
   at:      z.string(),
   distros: z.array(DistroSchema),
 });
 
 /** lexicon — due/total は PS1 の Get-BriefLexicon が cache.due に書く */
-const LexiconSchema = z.object({
+export const LexiconSchema = z.object({
   date:   z.string(),              // "yyyy-MM-dd"
   stamp:  z.string(),              // mtime+size fingerprint
   total:  z.number().int().nonnegative(),
@@ -41,13 +41,13 @@ const LexiconSchema = z.object({
   next:   z.string().nullable(),   // "yyyy-MM-dd" | null
 });
 
-const RecapSchema = z.object({
+export const RecapSchema = z.object({
   file:  z.string(),
   date:  z.string(),               // "yyyy-MM-dd" from filename
   heads: z.array(z.string()),
 });
 
-const PythonSchema = z.object({
+export const PythonSchema = z.object({
   at:      z.string(),
   version: z.string(),             // "Python 3.13.14"
 });

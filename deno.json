@@ -18,6 +18,7 @@
     "brief":    "deno run --allow-read --allow-env view/render.ts",
     "tui":      "deno run --allow-read --allow-env --allow-sys view/tui.tsx",
     "validate": "deno run --allow-read --allow-env model/validate.ts",
+    "schema":  "deno run --allow-read --allow-env --allow-write model/emit-schema.ts",
     "test":    "deno test -A controller/ model/ view/",
     "check":   "deno check controller/ model/ view/",
     "test:ps": "pwsh -NoProfile -File $env:USERPROFILE/Documents/PowerShell/tests/brief.test.ps1",
