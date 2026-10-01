@@ -1,0 +1,26 @@
+{
+  "imports": {
+    "@zod/zod":          "jsr:@zod/zod@^4",
+    "@std/cli":          "jsr:@std/cli@^1",
+    "@std/path":         "jsr:@std/path@^1",
+    "@std/assert":       "jsr:@std/assert@^1",
+    "react":             "npm:react@18",
+    "react/jsx-runtime": "npm:react@18/jsx-runtime",
+    "ink":               "npm:ink@5"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "strict": true,
+    "types": ["npm:@types/react@18"]
+  },
+  "tasks": {
+    "brief":    "deno run --allow-read --allow-env view/render.ts",
+    "tui":      "deno run --allow-read --allow-env --allow-sys view/tui.tsx",
+    "validate": "deno run --allow-read --allow-env model/validate.ts",
+    "check":    "deno check model/ view/",
+    "test":    "deno test -A model/ view/",
+    "test:ps": "pwsh -NoProfile -File $env:USERPROFILE/Documents/PowerShell/tests/brief.test.ps1",
+    "verify":  "deno task check && deno task test"
+  }
+}

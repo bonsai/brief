@@ -1,0 +1,13 @@
+# 実設定は commit しない（絶対パスが含まれる）
+settings.json
+
+# 缓存のバックアップ
+*.tmp
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.vscode/
+.idea/

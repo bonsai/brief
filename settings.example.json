@@ -1,0 +1,17 @@
+{
+  "$comment": "brief の正典設定。PowerShell 版 (brief.ps1) と Deno 版 (model/paths.ts) の両方がここだけを読む。他でパスをハードコードしないこと。このファイルを settings.json にコピーして自分のパスに直す（settings.json は gitignore 済み）。パスは posix 区切り（Windows でも PowerShell / Deno とも動作する）。~ は展開されないので絶対パスを書く。",
+  "paths": {
+    "cache":        "~/.startup/brief-cache.json",
+    "journal":      "~/.journal",
+    "issuesMd":     "~/.issues/issue-types.md",
+    "issuesJsonl":  "~/.issues/issue-types.jsonl",
+    "lexiconDir":   "~/.config/opencode/skills/genres/learning/word-ontology/ontology",
+    "settingsFile": "~/.config/opencode/skills/brief/settings.json"
+  },
+  "cache": {
+    "opencodeTtlHours": 6,
+    "wslTtlMinutes": 30,
+    "pythonTtlHours": 24,
+    "refreshMinIntervalMinutes": 30
+  }
+}
