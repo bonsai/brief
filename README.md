@@ -111,7 +111,8 @@ grep -E 'opencode|due|wsl|distros' view/render.ts view/tui.tsx view/panel.ts
 
 ## 詳細
 
-設計判断と既知の罠は [prd.md](./prd.md) を参照。
+設計判断と既知の罠は [docs/prd.md](./docs/prd.md) を参照。
+残務は [docs/kanban.md](./docs/kanban.md)（GitHub Issues と同期）。
 
 ## License
 
